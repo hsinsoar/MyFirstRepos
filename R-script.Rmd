@@ -1,0 +1,349 @@
+---
+title: "R-script"
+author: "Yi-Hsin Liu"
+date: "2019/5/15"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,  comment='')
+library(formatR)
+```
+
+# Basic features of R  
+  
+## 1. Vectors  
+> ``` c() ```
+
++ Creating a vector 
+```{r vector creating}
+x<-c(2,3,4,5,6)
+x
+```
+  
++ Extracting elements from vectors
+```{r vector extracting, tidy=TRUE, results='hold'}
+x[2]
+#extrcting all elements except the second element
+x[-2]   
+x[3:5]
+```
+  
++ Vector arithmetic
+```{r vector ,tidy=TRUE, results='hold'}
+x
+x * 3
+y <- x-5
+y
+x^3
+y^x
+```
++ Simple patterned vectors  
+>```seq(from = 1, to = 1, by = ((to-from)/(length.out-1)), length.out = NULL, along.with = NULL, ...)```
+
+```{r seq() function}
+seq(1, 21, by=2)
+seq(0, 1, len = 5)
+```
+
+> ```rep(x, times = 1, length.out = NA, each = 1)```
+
+```{r rep() function}
+rep(1:4, each = 2, len = 4)  #first four only
+rep(c(1, 4), c(3, 2))  #repeat 1 : 3 times, and 4 :2 times
+rep(seq(2, 10, 2), rep(2, 5))  #repeat each value twice
+
+```
+
++ Character vectors  
+  
+> ```substr(x, start, stop)  paste(..., sep = " ", collapse = NULL)```  
+
+```{r char vectors, results='hold'}
+colors <- c("red", "yellow", "blue")
+substr(colors, 1, 2)
+paste(colors, "flowers")
+paste("several", colors, "s", sep="")
+paste("I like", colors, collapse=", ")
+```
+
+## 2. Factors
+>```factor(x = character(), levels, labels = levels, exclude = NA, ordered = is.ordered(x), nmax = NA)``` 
+
+```{r factor, results='hold'}
+grp <- c("A", "B", "A", "B")
+grp
+grp2 <- factor(grp)
+grp2
+as.integer(grp2) #the levels of a factor are internally coded as integers 
+levels(grp2)
+grp2[3]
+```
+
+```{r factor2, results='hold', tidy=TRUE}
+fac=c("AAAAA","ABABA","aaaaa","ABABA",111)
+fac
+#Map from 4 different values to three levels:
+fac2=factor(fac, levels = c(111,"AAAAA","ABABA","aaaaa"),
+                 labels = c(111,"AAAAA","ABABA","AAAAA"))
+fac2
+as.integer(fac2)
+```
+
+```{r factor3, results='hold'}
+#omit the fifth element, but not omit from levels
+fac3=fac2[-5]
+fac3
+as.integer(fac3)
+levels(fac3)[c(1,2,1,2,3)]
+```
+
+## 3. Matrices and arrays  
+> ```matrix(data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)```  
+
+```{r matrices}
+m <- matrix(1:6, nrow=2, ncol=3, dimnames=list(c("r1","r2"), c("c1", "c2","c3")))
+m
+m[1, 2]
+m[4] #column-major storage order
+m[1,] #whole rows
+m[, 1] #whole columns
+m[c(1,2), c(2,3)] #submatrix
+m[c(1,2), c(2,3)] = 2*m[c(1,2), c(2,3)]
+m
+```
+
+> ```array(data = NA, dim = length(data), dimnames = NULL)```  
+
+```{r array}
+a <- array(1:24,c(3, 4, 2))
+a
+```
+
+## 4. Dataframes  
+>```data.frame(..., row.names = NULL, check.rows = FALSE, check.names = TRUE, fix.empty.names = TRUE, stringsAsFactors = default.stringsAsFactors())```  
+           
+           
+```{r dataframes}
+color=c("red","red","red1","blue")
+number=c(1,3,5,7)
+logic=c(T,T,F,F)
+
+fr <- data.frame(colors=color, numbers=number, logics=logic)
+fr #naming each columns
+
+fr2 <- data.frame(color,number,logics=logic)
+fr2 #original names from vectors
+
+fr["numbers"]
+```
+```{r, results='hold'}
+#extract "numbers"
+fr[,2]
+fr[,"numbers"]
+fr$number #numeric
+#extract "colors"
+fr$colors #factor
+#extract "logics"
+fr$logics #logical
+```
+
+## 5. Logical vectors  
+
+Boolean |  A  |  B  | not A | not B | A and B | A or B 
+------- | --- | --- | ----- | ----- | ------- | -------
+R code  |  A  |  B  |  !A   |  !B   |  A & B  |  A \| B
+T/F     |TRUE |TRUE |FALSE  |FALSE  |TRUE     |TRUE
+T/F     |TRUE |FALSE|FALSE  |TRUE   |FALSE    |TRUE
+T/F     |FALSE|TURE |TRUE   |FALSE  |FALSE    |TRUE
+T/F     |FALSE|FALSE|TRUE   |TRUE   |FALSE    |FALSE  
+
+```{r logical operations}
+a <- c(TRUE, FALSE, FALSE, TRUE)
+b <- c(13, 7, 8, 2)
+c<-c(FALSE, TRUE, TRUE, FALSE)
+d<-c(FALSE, FALSE)
+
+b[a]
+b||c
+c||b
+a&&b
+d&&b
+a & (b& c)
+```
+
+```{r relation operator}
+a <- c(3, 6, 9)
+a > 4
+a == 4
+a[a > 4]
+b <- c(4, 6, 8)
+a < b
+a[a < b]
+a[a <= b]
+```
+
+## 6. Lists  
+```{r}
+x <- c(3, 2, 3)
+y <- c(7, 7)
+new <- list(x = x, y = y)
+new
+names(new)
+new$x[2]
+```
+***
+# High-level plots  
+
+## 1. Bar charts  
+```barplot(height, width = 1, space = NULL, names.arg = NULL,```
+        ```legend.text = NULL, beside = FALSE, horiz = FALSE,```  
+        ```density = NULL, angle = 45, col = NULL, ```  
+```        border = par("fg"), main = NULL, sub = NULL, ```  
+```        xlab = NULL, ylab = NULL, xlim = NULL, ylim = NULL,```  
+```        xpd = TRUE, log = "", axes = TRUE, axisnames = TRUE,```  
+```        cex.axis = par("cex.axis"), cex.names = par("cex.axis"),```  
+```        inside = TRUE, plot = TRUE, axis.lty = 0, offset = 0,```  
+```        add = FALSE, args.legend = NULL, ...)```
+
+```{r ,paged.print=TRUE}
+VADeaths
+
+barplot(VADeaths, beside=TRUE, legend=TRUE, ylim=c(0,90), ylab="Deaths per 1000", main="Death rates in Virginia")
+```
+
+## 2. Dot charts  
+```{r dotchart}
+dotchart(VADeaths, xlim=c(0,75),
+xlab="Deaths per 1000", main="Death rates in Virginia")
+
+```
+
+## 3. Pie charts  
+```{r pie}
+groupsizes=c(18,30,32,10,10)
+labels=c("甲","乙","丙","丁","戊")
+pie(groupsizes,labels,col=c("grey40","white","grey","black","grey"))
+```
+
+## 4. Histograms  
+```{r hist, paged.print=TRUE}
+x=rnorm(100)
+hist(x)
+
+hist(x,breaks=5)
+```
+
+## 5. Box plots  
+```{r boxplot, paged.print=TRUE, fig.show='hold'}
+boxplot(Sepal.Length ~ Species, data=iris, ylab="Sepal length(cm)",
+main="Iris measurments", boxwex=0.5) 
+
+boxplot(Sepal.Length ~ Species, data=iris, ylab="Sepal length(cm)",
+main="Iris measurments", boxwex=0.1) 
+```
+
+## 6. Scatter plots
+```{r plot, paged.print=TRUE}
+x <- rnorm(100)
+y <- rpois(100,30)
+mean(y)
+
+plot(x,y, main="Poisson versus Normal")
+plot(x, y, type="l")
+plot(sort(x),sort(y), type="l")
+```
+
+## 7. QQ plots  
+```{r qqplot, fig.show = "hold", fig.ncol = 2}
+X <- rnorm(1000)
+A <- rnorm(1000)
+qqplot(X, A, main="A and X are the same")
+B <- rnorm(1000, mean=3, sd=2)
+qqplot(X, B, main="B is rescaled X")
+C <- rt(1000, df=2)
+qqplot(X, C, main="C has heavier tails")
+D <- exp(rnorm(1000))
+qqplot(X, D, main="D is skewed to the right")
+```
+
+# Low-level plots  
+
+## 1. The plotting region and margins
+
+```{r plotregion}
+par(mar=c(4, 5, 6, 7) + 0.1)
+plot(c(1,9), c(0,50), type="n", xlab="", ylab="")
+text(6,40, "Plot region")
+points(6,20)
+text(6,20, "(6,20)", adj=c(0.5,2))
+mtext(paste("Margin", 1:4), side=1:4, line=3)
+mtext(paste("Line", 0:3), side=1, line=0:3, at=3, cex=0.6)
+mtext(paste("Line", 0:4), side=2, line=0:4, at=15, cex=0.6)
+mtext(paste("Line", 0:5), side=3, line=0:5, at=3, cex=0.6)
+mtext(paste("Line", 0:6), side=4, line=0:6, at=15, cex=0.6)
+
+```
+
+## 2. Adding to plots  
+
+```{r points}
+indexfinger=read.table("d:/indexfinger.txt", header=T)
+
+plot(width~length, data=indexfinger)
+
+with(indexfinger[c(3,7),], points(length, width, pch=16))
+
+with(indexfinger[c(1,4),], points(length, width, pch=10))
+```
+
+```{r pchShow, echo=FALSE}
+pchShow <-
+  function(extras = c("*",".", "o","O","0","+","-","|","%","#"),
+           cex = 3, ## good for both .Device=="postscript" and "x11"
+           col = "black", bg = "gold", coltext = "brown", cextext = 1.2,
+           main = paste("plot symbols :  points (...  pch = *, cex =",
+                        cex,")"))
+  {
+    nex <- length(extras)
+    np  <- 26 + nex
+    ipch <- 0:(np-1)
+    k <- floor(sqrt(np))
+    dd <- c(-1,1)/2
+    rx <- dd + range(ix <- ipch %/% k)
+    ry <- dd + range(iy <- 3 + (k-1)- ipch %% k)
+    pch <- as.list(ipch) # list with integers & strings
+    if(nex > 0) pch[26+ 1:nex] <- as.list(extras)
+    plot(rx, ry, type = "n", axes  =  FALSE, xlab = "", ylab = "", main = main)
+    abline(v = ix, h = iy, col = "lightgray", lty = "dotted")
+    for(i in 1:np) {
+      pc <- pch[[i]]
+      ## 'col' symbols with a 'bg'-colored interior (where available) :
+      points(ix[i], iy[i], pch = pc, col = col, bg = bg, cex = cex)
+      if(cextext > 0)
+          text(ix[i] - 0.3, iy[i], pc, col = coltext, cex = cextext)
+    }
+  }
+
+pchShow()
+
+```
+
+```{r abline legend}
+col.v=c("blue","red","blue","red","red","blue","red","blue")
+plot(width~length, pch=as.character(sex), data=indexfinger,col=col.v)
+
+abline(lm(width~length, data=indexfinger, subset=sex=="M"), lty=1, col="blue")
+
+abline(lm(width~length, data=indexfinger, subset=sex=="F"), lty=1, col="red")
+
+legend(x=6, y=2.4, legend=c("Male", "Female"), lty=1:2, col=c("blue","red"))
+
+```
+
